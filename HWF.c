@@ -3,16 +3,18 @@
 #include <stdlib.h>
 
 
-//total = m - номер хода; possible = n оставшихся спичек на этом ходу
-//void play_game(int n);
-
+//--------------------------------------------------------
+void play_game(int n);
 unsigned fib(unsigned n);
 unsigned count_fib(unsigned num);
 unsigned closest_fib(unsigned num, unsigned *clst_fib_idx);
 unsigned* fib_convert(unsigned num);
 int next_turn(int total, int possible);
+//--------------------------------------------------------
 
-/*
+
+
+//! Function for simulating the game process
 void play_game(int n)
 {
     int possible = 0;
@@ -20,10 +22,8 @@ void play_game(int n)
     int left = 0;
     int player = 0;
     int counter = 0;
-
     possible = n - 1;
     left = n;
-
     while (left)
     {
         taken = next_turn(left, possible);
@@ -40,12 +40,11 @@ void play_game(int n)
         printf("Possible to take for next player: %d\n", possible);
         printf("====================================\n");
     }
-
     printf("Player #%d won!", player);
 }
-*/
 
-//total - how many left; possible - how many we can take 
+
+//! Function for determining how many sticks to take on the mth move
 int next_turn(int total, int possible)
 {
     unsigned* total_fib = NULL;
@@ -76,6 +75,7 @@ int next_turn(int total, int possible)
     else return 1;   
 }
 
+//! Function for finding fibonacci number by its index n
 unsigned fib(unsigned n)
 {
   unsigned first = 1u, second = 2u, tmp;
@@ -91,7 +91,7 @@ unsigned fib(unsigned n)
   return second;
 }
 
-//перевод в сист счисл фибоначчи
+//! Function for converting from decimal system to Fibonacci sysytem
 unsigned* fib_convert(unsigned num)
 {
     unsigned fib_idx = 0;
@@ -118,6 +118,7 @@ unsigned* fib_convert(unsigned num)
 }
 
 
+//! Function for defining the closest fibonacci number to num (from the left)
 unsigned closest_fib(unsigned num, unsigned *clst_fib_idx)
 {
     unsigned first = 1u, second = 2u, tmp;
@@ -145,8 +146,8 @@ unsigned closest_fib(unsigned num, unsigned *clst_fib_idx)
 }
 
 
-
-//сколько чисел фибоначчи перед num (не включая num, если это число фибонначи)
+//! Function for defining how many fibonacci numbers
+//! are before num (not including num if num is a fibonacci number)
 unsigned count_fib(unsigned num)
 {
     unsigned first = 1u, second = 2u, tmp;
@@ -167,11 +168,16 @@ unsigned count_fib(unsigned num)
 
 }
 
-/*
 int main()
 {
-    int res = next_turn(500500501, 11);
-    printf("RESULT: %d", res);
+    int res;
+    int n;
+    res = scanf("%d", &n);
+    if (res != 1)
+    {
+        printf("%s\n", "Incorrect input");
+        abort();
+    }
+    play_game(n);
     return 0;
 }
-*/
