@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 
+unsigned long long fib_nums[100] = {0};
 //--------------------------------------------------------
 void play_game(int n);
 unsigned fib(unsigned n);
@@ -11,7 +12,6 @@ unsigned closest_fib(unsigned num, unsigned *clst_fib_idx);
 unsigned* fib_convert(unsigned num);
 int next_turn(int total, int possible);
 //--------------------------------------------------------
-
 
 
 //! Function for simulating the game process
@@ -43,7 +43,6 @@ void play_game(int n)
     printf("Player #%d won!", player);
 }
 
-
 //! Function for determining how many sticks to take on the mth move
 int next_turn(int total, int possible)
 {
@@ -58,7 +57,7 @@ int next_turn(int total, int possible)
     total_fib = fib_convert(total);
     length = count_fib(total);
 
-    for (int i = 0; i < length - 1; ++i)
+    for (int i = 0; i < length; ++i)
     {
         if ((total_fib[i] == 1) && (i != length - 1))
         {
@@ -78,27 +77,24 @@ int next_turn(int total, int possible)
 //! Function for finding fibonacci number by its index n
 unsigned fib(unsigned n)
 {
-  unsigned first = 1u, second = 2u, tmp;
+    fib_nums[0] = 1; fib_nums[1] = 2;
 
-    if (n == 0)
-        return 1u;
-  for(int i = 2; i <= n; ++i)
-  {
-    tmp = second;
-    second = second + first;
-    first = tmp;
-  }
-  return second;
+    for (int i = 2; i <= n; ++i)
+    {
+       fib_nums[i] = fib_nums[i - 1] + fib_nums[i - 2];
+    }
+    return fib_nums[n];
 }
 
-//! Function for converting from decimal system to Fibonacci sysytem
+//! Function for converting from decimal system to Fibonacci system
 unsigned* fib_convert(unsigned num)
 {
+    unsigned* arr = NULL;
     unsigned fib_idx = 0;
     unsigned clst_fib = 0;
-    unsigned* arr = NULL;
     
-    fib_idx = count_fib(num);//узнали, сколько до него чисел
+    
+    fib_idx = count_fib(num);//узнали индекс предыдущего числа f
 
     arr = (unsigned*) calloc(fib_idx, sizeof(unsigned));
     assert(arr);
@@ -121,9 +117,8 @@ unsigned* fib_convert(unsigned num)
 //! Function for defining the closest fibonacci number to num (from the left)
 unsigned closest_fib(unsigned num, unsigned *clst_fib_idx)
 {
-    unsigned first = 1u, second = 2u, tmp;
+    unsigned i = 1;
     *clst_fib_idx = 0;
-
     if (num == 0 || num == 1)
         return num;
 
@@ -131,41 +126,33 @@ unsigned closest_fib(unsigned num, unsigned *clst_fib_idx)
     {
         *clst_fib_idx = 1;
         return 2;
-    }   
+    }
 
-    while(second <= num)
+    while(fib_nums[i] <= num)
     {
-        tmp = second;
-        second = second + first;
-        first = tmp;
-
+        ++i;
         ++(*clst_fib_idx);
     }
 
-    return first;
+    return fib_nums[i - 1];
 }
 
-
-//! Function for defining how many fibonacci numbers
-//! are before num (not including num if num is a fibonacci number)
+//! Function for defining previous fibonacci number index
 unsigned count_fib(unsigned num)
 {
-    unsigned first = 1u, second = 2u, tmp;
+    unsigned tmp = 0;
     int counter = 1;
 
-    if (num < 4)
+    if (num < 3)
         return num;
 
-    while(second <= num)
+    while (tmp <= num)
     {
-        tmp = second;
-        second = second + first;
-        first = tmp;
-
         ++counter;
+        tmp = fib(counter);
     }
+    
     return counter;
-
 }
 
 int main()
@@ -179,5 +166,6 @@ int main()
         abort();
     }
     play_game(n);
+
     return 0;
 }
