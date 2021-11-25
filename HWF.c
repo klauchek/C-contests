@@ -2,11 +2,16 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define LAST_ULL_FIB 91
 
-unsigned long long fib_nums[100] = {0};
+//! NOTE: LAST_ULL_FIB is defined by unsigned long long overflow
+//! LAST_ULL_FIB will be 93 using f[1] = 1, f[2] = 1, f[3] = 2, f[4] = 3, f[5] = 5, f[6] = 8...
+//! We use f[0] = 1, f[1] = 2, f[2] = 3, f[3] = 5, f[4] = 8... - convenient for converting to fibonacci system
+
+unsigned long long fib_nums[LAST_ULL_FIB] = {0};
 //--------------------------------------------------------
 void play_game(int n);
-unsigned fib(unsigned n);
+unsigned long long fib(unsigned n);
 unsigned count_fib(unsigned num);
 unsigned closest_fib(unsigned num, unsigned *clst_fib_idx);
 unsigned* fib_convert(unsigned num);
@@ -67,7 +72,10 @@ int next_turn(int total, int possible)
     }
 
     free(total_fib);
-    to_take = fib(fib_idx);
+
+    if (fib_nums[fib_idx] == 0)
+        fib(fib_idx);
+    to_take = fib_nums[fib_idx];//HERE!
 
     if (possible >= to_take)
         return to_take;
@@ -75,7 +83,7 @@ int next_turn(int total, int possible)
 }
 
 //! Function for finding fibonacci number by its index n
-unsigned fib(unsigned n)
+unsigned long long fib(unsigned n)
 {
     fib_nums[0] = 1; fib_nums[1] = 2;
 
@@ -140,16 +148,16 @@ unsigned closest_fib(unsigned num, unsigned *clst_fib_idx)
 //! Function for defining previous fibonacci number index
 unsigned count_fib(unsigned num)
 {
-    unsigned tmp = 0;
     int counter = 1;
 
     if (num < 3)
         return num;
 
-    while (tmp <= num)
+    while (fib_nums[counter] <= num)
     {
         ++counter;
-        tmp = fib(counter);
+        if (fib_nums[counter] == 0)
+            fib(counter);     
     }
     
     return counter;
@@ -166,6 +174,6 @@ int main()
         abort();
     }
     play_game(n);
-
+    
     return 0;
 }
