@@ -4,8 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#define WORDLEN 100
-#define H_SIZE 5000
+//#define WORDLEN 100
+#define H_SIZE 500000
 
 struct node_t {
     char *data;
@@ -18,8 +18,9 @@ struct hashtable_t {
 };
 
 //-------------------------
-struct hashtable_t *hashtable_ctor();
-const char* make_word(char c);
+struct hashtable_t *hashtable_ctor(unsigned buf_len);
+const char* make_buffer(unsigned buf_len);
+const char* make_word(char *str);
 void hashtable_fill(struct hashtable_t *h, unsigned buf_len);
 struct node_t *add_node(const char *value);
 void hashtable_insert(struct hashtable_t *h, unsigned key, const char *value);
@@ -30,7 +31,7 @@ void hashtable_dtor(struct hashtable_t *h);
 unsigned hash(const char *str);
 //----------------------------------------
 
-struct hashtable_t *hashtable_ctor() {
+struct hashtable_t *hashtable_ctor(unsigned buf_len) {
     struct hashtable_t *h = (struct hashtable_t *)calloc(1, sizeof(struct hashtable_t));
     assert(h);
     h->arr = (struct node_t **)calloc(H_SIZE, sizeof(struct node_t *));
@@ -39,15 +40,33 @@ struct hashtable_t *hashtable_ctor() {
     return h;
 }
 
-const char* make_word(char c) {
-    char *str = (char *)calloc(WORDLEN, sizeof(char));
+const char* make_buffer(unsigned buf_len) {
+    int res = 0;
+    char *buffer = (char *)calloc(buf_len + 1, sizeof(char));
+    assert(buffer);
+    scanf("\n");
+    for(int i = 0; i < buf_len; ++i) {
+        assert(res = scanf("%c", buffer + i) == 1);
+        if(buffer[i] == ' ')
+            buffer[i] = '\0';
+    }  
+    buffer[buf_len] = '\0';
+
+    return buffer;
+}
+
+const char* make_word(char *str) {
     int len = 0;
-    while(isalpha(c)) {
-        *(str + len) = c;
-        ++len;
-        c = getchar();
-    }
-    return str;
+    char *word = NULL;
+    assert(str);
+
+    len = strlen(str);
+    word = (char *)calloc(len + 1, sizeof(char));
+    for(int i = 0; i < len; ++i)
+        word[i] = str[i];
+    word[len] = '\0';
+
+    return word;
 }
 
 void hashtable_insert(struct hashtable_t *h, unsigned key, const char *value) {
@@ -69,13 +88,15 @@ void hashtable_insert(struct hashtable_t *h, unsigned key, const char *value) {
 void hashtable_fill(struct hashtable_t *h, unsigned buf_len) {
     char c = 0;
     unsigned key = 0;
-    char* word = NULL;
+    char *word = NULL;
+    char *buf = NULL;
 
+    buf = make_buffer(buf_len);
+    
     for(int i = 0; i < buf_len; ++i)
     {
-        c = getchar();
-        if(isalpha(c)) {
-            word = make_word(c);
+        if(isalpha(buf[i])) {
+            word = make_word(buf + i);
             i += strlen(word);
             key = hash(word) % h->size;
             hashtable_insert(h, key, word);
@@ -126,13 +147,15 @@ void freq_count(struct hashtable_t *h, unsigned w_buf_len) {
     char c = 0;
     unsigned key = 0;
     unsigned freq = 0;
-    char* word = NULL;
+    char *word = NULL;
+    char *words_buf = NULL;
     assert(h);
+
+    words_buf = make_buffer(w_buf_len);
     for(int i = 0; i < w_buf_len; ++i)
     {
-        c = getchar();
-        if(isalpha(c)) {
-            word = make_word(c);
+        if(isalpha(words_buf[i])) {
+            word = make_word(words_buf + i);
             i += strlen(word);
             key = hash(word) % h->size;
             freq = hashtable_find(h, key, word);
@@ -183,11 +206,12 @@ int main() {
     unsigned words_amount = 0;
     unsigned buf_len = 0;
     unsigned w_buf_len = 0;
-    struct hashtable_t *hashtable = hashtable_ctor();
+    struct hashtable_t *hashtable;
 
     assert(scanf("%d %d", &words_amount, &buf_len) == 2);
+    hashtable = hashtable_ctor(buf_len);
+    
     hashtable_fill(hashtable, buf_len);
-
     assert(scanf("%d", &w_buf_len) == 1);
 
     freq_count(hashtable, w_buf_len);
