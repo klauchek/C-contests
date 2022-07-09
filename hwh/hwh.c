@@ -8,11 +8,35 @@ struct node_t {
 struct hashtable_t {
     struct node_t **arr;
     struct node_t *head;
-    struct node_t *tail;
     unsigned size;
     unsigned inserts;
 
 };
+
+// static void print_list (struct node_t *head, int key, int size) {
+
+//     struct node_t *node = head->next;
+
+//     while (node && hash(node->data) % size == key) {
+
+//         printf ("\t%s\n", node->data);
+//         node = node->next;
+//     }
+// }
+
+// static void print_table (struct hashtable_t *table) {
+    
+//     struct node_t **arr = table->arr;
+
+//     for (int i = 0; i < table->size; ++i) {
+        
+//         if (arr[i]) {
+            
+//             printf ("\t\t###Key: %d\n", i);
+//             print_list (table->arr[i], i, table->size);
+//         }
+//     }
+// }
 
 //---------------------------------------------------------
 struct hashtable_t *hashtable_ctor(unsigned sz) {
@@ -23,7 +47,6 @@ struct hashtable_t *hashtable_ctor(unsigned sz) {
     h->arr = (struct node_t **)calloc(sz, sizeof(struct node_t *));
     assert(h->arr);
     h->size = sz;
-    h->tail = h->head;
 
     return h;
 }
@@ -71,21 +94,64 @@ struct node_t *add_node(const char *value) {
     return new_node;
 }
 
+
+
 void hashtable_insert(struct hashtable_t *h, unsigned key, const char *value) {
     assert(h);
-
     assert(value);
+
+    if (((double)h->inserts / h->size) >= 0.75) //double
+       hashtable_resize(h);
+
+    struct node_t *new_node = add_node(value);
+
     if(!h->arr[key]) {
-        h->arr[key] = h->tail;
-        h->tail->next = add_node(value);
-        h->tail = h->tail->next;
+        new_node->next = h->head->next;
+        h->head->next = new_node;
+        if(new_node->next) {
+            int next_key = hash(new_node->next->data) % h->size;
+            h->arr[next_key] = new_node;
+        }
+        h->arr[key] = h->head;
     }
     else {
-        struct node_t *cur = h->arr[key];
-        struct node_t *next = cur->next;
-        cur->next = add_node(value);
-        cur = cur->next;
-        cur->next = next;
+        new_node->next = h->arr[key]->next;
+        h->arr[key]->next = new_node;
+    }
+    ++h->inserts;
+}
+
+void hashtable_resize(struct hashtable_t *h) {
+    assert(h);
+
+    struct node_t **arr = h->arr;
+    int new_key = 0;
+    struct node_t *cur = h->head->next;
+    struct node_t *last = h->head;
+    struct node_t *next = NULL;
+
+    free(arr);
+
+    h->size *= 2;
+
+    h->arr = (struct node_t **)calloc(h->size, sizeof(struct node_t *));
+
+    while(cur) {
+        next = cur->next;
+        new_key = hash(cur->data) % h->size;
+
+        if(!h->arr[new_key]) {
+            last->next = cur;
+            h->arr[new_key] = last;
+            last = cur;
+            last->next = NULL;
+        }
+        else {
+            cur->next = h->arr[new_key]->next;
+            h->arr[new_key]->next = cur;
+
+        }
+        cur = next;
     }
 }
 
@@ -111,6 +177,7 @@ void hashtable_fill(struct hashtable_t *h, unsigned buf_len) {
 }
 
 
+// ok
 int hashtable_find(struct hashtable_t *h, unsigned key, const char *str) {
     unsigned freq = 0;
     assert(h);
@@ -120,19 +187,17 @@ int hashtable_find(struct hashtable_t *h, unsigned key, const char *str) {
         return 0;
     else {
         struct node_t *cur = h->arr[key];
-        
         cur = cur->next;
 
-        while(cur != h->tail && (hash(cur->data) % h->size) == key) {
+        while(cur && (hash(cur->data) % h->size) == key) {
             if(strcmp(cur->data, str) == 0)
                 ++freq;
             cur = cur->next;
         }
-        if(strcmp(cur->data, str) == 0)
-                ++freq;
     }
     return freq;
 }
+
 
 void freq_count(struct hashtable_t *h, unsigned w_buf_len) {
     char c = 0;
@@ -177,10 +242,6 @@ void list_dtor(struct node_t *node) {
 void hashtable_dtor(struct hashtable_t *h) {
     assert(h);
     list_dtor(h->head);
-    // for(int i = 0; i < h->size; ++i) {
-    //     if(h->arr[i] != NULL)
-    //         free(h->arr[i]);
-    // }
     free(h->arr);
     free(h);
 }
@@ -195,6 +256,3 @@ unsigned hash(const char *str) {
     
     return hash;
 }
-//! TODO:
-// RESHASH
-//DELETE

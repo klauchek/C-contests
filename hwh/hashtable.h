@@ -17,6 +17,7 @@ void hashtable_fill(struct hashtable_t *h, unsigned buf_len);
 struct node_t *add_node(const char *value);
 void hashtable_insert(struct hashtable_t *h, unsigned key, const char *value);
 int hashtable_find(struct hashtable_t *h, unsigned key, const char *str);
+void hashtable_resize(struct hashtable_t *h);
 void freq_count(struct hashtable_t *h, unsigned w_buf_len);
 void list_dtor(struct node_t *node);
 void hashtable_dtor(struct hashtable_t *h);

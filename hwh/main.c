@@ -13,7 +13,7 @@ int main() {
         abort();
     }
 
-    hashtable = hashtable_ctor(10000000);
+    hashtable = hashtable_ctor(1);
     hashtable_fill(hashtable, buf_len);
 
     res = scanf("%d", &w_buf_len);
