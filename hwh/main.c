@@ -1,5 +1,15 @@
 #include "hashtable.h"
 
+unsigned hash_function(const char *str) {
+    unsigned hash = 5381;
+    int c = 0;
+
+    while(c = *str++)
+        hash = ((hash << 5) + hash) + c;
+    
+    return hash;
+}
+
 int main() {
     int res = 0;
     unsigned words_amount = 0;
@@ -13,7 +23,7 @@ int main() {
         abort();
     }
 
-    hashtable = hashtable_ctor(1);
+    hashtable = hashtable_ctor(1, hash_function);
     hashtable_fill(hashtable, buf_len);
 
     res = scanf("%d", &w_buf_len);

@@ -7,20 +7,21 @@
 #include <string.h>
 #include <ctype.h>
 
+typedef unsigned (*hash_func)(const char *);
+
 struct node_t;
 struct hashtable_t;
 
-struct hashtable_t *hashtable_ctor(unsigned sz);
+struct hashtable_t *hashtable_ctor(unsigned sz, hash_func hashFunc);
 char* make_buffer(unsigned buf_len);
 char* make_word(const char *str);
 void hashtable_fill(struct hashtable_t *h, unsigned buf_len);
 struct node_t *add_node(const char *value);
-void hashtable_insert(struct hashtable_t *h, unsigned key, const char *value);
+void hashtable_insert(struct hashtable_t *h, const char *value);
 int hashtable_find(struct hashtable_t *h, unsigned key, const char *str);
 void hashtable_resize(struct hashtable_t *h);
 void freq_count(struct hashtable_t *h, unsigned w_buf_len);
 void list_dtor(struct node_t *node);
 void hashtable_dtor(struct hashtable_t *h);
-unsigned hash(const char *str);
 
 #endif //__HASH_TABLE_H__
