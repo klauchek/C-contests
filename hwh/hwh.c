@@ -77,7 +77,7 @@ void hashtable_insert(struct hashtable_t *h, const char *value) {
     assert(h);
     assert(value);
 
-    if (((double)h->inserts / h->size) >= 0.75) //double
+    if (((double)h->inserts / h->size) >= 0.75)
        hashtable_resize(h);
 
     unsigned key = h->hash(value) % h->size;
@@ -146,7 +146,6 @@ void hashtable_fill(struct hashtable_t *h, unsigned buf_len) {
         if(isalpha(buf[i])) {
             word = make_word(buf + i);
             i += strlen(word);
-            //key = h->hash(word) % h->size;
             hashtable_insert(h, word);
             free(word);
         }
@@ -154,8 +153,6 @@ void hashtable_fill(struct hashtable_t *h, unsigned buf_len) {
     free(buf);
 }
 
-
-// ok
 int hashtable_find(struct hashtable_t *h, unsigned key, const char *str) {
     unsigned freq = 0;
     assert(h);
