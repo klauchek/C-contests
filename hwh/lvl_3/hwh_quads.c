@@ -72,7 +72,7 @@ void hashtable_insert(struct hashtable_t *h, struct data_t *new_data, char *text
     assert(h);
     assert(new_data);
 
-    if (((double)h->inserts / h->size) >= 0.75)
+    if (((double)h->inserts / h->size) >= LOAD_FACTOR)
        hashtable_resize(h, text_buffer);
 
     char *new_str = get_concat_str(h, new_data->idx_1, new_data->idx_2, text_buffer);
@@ -111,11 +111,13 @@ void hashtable_resize(struct hashtable_t *h, char *text_buffer) {
     h->size *= 2;
 
     h->arr = (struct node_t **)calloc(h->size, sizeof(struct node_t *));
+    assert (h->arr);
 
     while(cur) {
         next = cur->next;
         char *new_str = get_concat_str(h, cur->data.idx_1, cur->data.idx_2, text_buffer);
         unsigned new_key = h->hash(new_str) % h->size;
+        free (new_str);
 
         if(!h->arr[new_key]) {
             last->next = cur;
@@ -200,8 +202,13 @@ int compare (int idx_1, int idx_2, int idx_3, int idx_4, const char *buf) {
 }
 
 //поиск равных в одном бакете
-struct answer_t *get_answer(struct hashtable_t *h, struct node_t *cur, char *text_buffer, unsigned *quads_in_bkt) {
+unsigned get_answer(struct hashtable_t *h, struct node_t *cur, char *text_buffer) {
 
+    assert(h);
+    assert(cur);
+    assert(text_buffer);
+
+    unsigned quads_in_bkt = 0;
     //ищем последний элемент в данном бакете
     char *cur_str = get_concat_str(h, cur->data.idx_1, cur->data.idx_2, text_buffer);
     unsigned key = h->hash(cur_str) % h->size;
@@ -214,9 +221,8 @@ struct answer_t *get_answer(struct hashtable_t *h, struct node_t *cur, char *tex
         cur_str = get_concat_str(h, last->data.idx_1, last->data.idx_2, text_buffer);
         ++counter;
     }
+    
     free(cur_str);
-
-    struct answer_t *quads = (struct answer_t *)calloc((counter * (counter - 1)) / 2, sizeof(struct answer_t));
 
     //проход по бакету с поиском равных
     while(cur != last->next) {
@@ -227,27 +233,39 @@ struct answer_t *get_answer(struct hashtable_t *h, struct node_t *cur, char *tex
             
             int res = compare(cur->data.idx_1, cur->data.idx_2, comp_node->data.idx_1, comp_node->data.idx_2, text_buffer);
             if(res) {
+                ++quads_in_bkt;
+
+                #ifdef PRINT_QUADS
                 struct answer_t quad;
                 quad.first_pair = cur->data;
                 quad.second_pair = comp_node->data;
-                quads[*quads_in_bkt] = quad;
-                ++*quads_in_bkt;
+                char *str1 = make_word(text_buffer + quad.first_pair.idx_1);
+                char *str2 = make_word(text_buffer + quad.first_pair.idx_2);
+                char *str3 = make_word(text_buffer + quad.second_pair.idx_1);
+                char *str4 = make_word(text_buffer + quad.second_pair.idx_2);
+
+                printf("%s %s %s %s \n", str1, str2, str3, str4);
+
+                free(str1);
+                free(str2);
+                free(str3);
+                free(str4);
+                #endif
             }
             comp_node = comp_node->next;
         }
         cur = cur->next;
     }
-    return quads;
+    return quads_in_bkt;
 }
 
 
 //итерируемся по всей таблице и по каждому бакету
-int quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
+unsigned quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
     assert(h);
     assert(buffer);
-    int counter = 0;
-    unsigned quads_in_bkt = 0;//in one bucket
 
+    unsigned num_of_quads = 0;
     char *text_buffer = get_text_buffer(buffer);
 
     //идем по таблице и заходим в каждый бакет
@@ -255,27 +273,10 @@ int quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
         if(!h->arr[i])
             continue;
         struct node_t *cur = h->arr[i]->next;
-        struct answer_t *res_from_bkt = get_answer(h, cur, text_buffer, &quads_in_bkt);
-        for(int i = 0; i < quads_in_bkt; ++i) {
-            char *str1 = make_word(text_buffer + res_from_bkt[i].first_pair.idx_1);
-            char *str2 = make_word(text_buffer + res_from_bkt[i].first_pair.idx_2);
-            char *str3 = make_word(text_buffer + res_from_bkt[i].second_pair.idx_1);
-            char *str4 = make_word(text_buffer + res_from_bkt[i].second_pair.idx_2);
-
-            printf("%s %s %s %s \n", str1, str2, str3, str4);
-
-            free(str1);
-            free(str2);
-            free(str3);
-            free(str4);
-        }
-        counter += quads_in_bkt;
-        quads_in_bkt = 0;
-
-        free(res_from_bkt);
+        num_of_quads += get_answer(h, cur, text_buffer);
     }
 
-    return counter;
+    return num_of_quads;
 }
 
 
@@ -296,4 +297,3 @@ void hashtable_dtor(struct hashtable_t *h) {
     free(h->arr);
     free(h);
 }
-

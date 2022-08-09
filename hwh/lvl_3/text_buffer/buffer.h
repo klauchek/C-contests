@@ -9,7 +9,7 @@
 
 struct buffer_t;
 
-#define START_CAPACITY 10000
+#define START_CAPACITY 128
 
 struct buffer_t *make_buffer(struct buffer_t *buffer, unsigned num_of_strs);
 char *get_text_buffer(const struct buffer_t *buffer);
