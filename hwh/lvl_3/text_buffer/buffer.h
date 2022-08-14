@@ -18,6 +18,4 @@ void buffer_resize(struct buffer_t *buffer);
 void buffer_dtor(struct buffer_t *buffer);
 char *make_word(const char *str);
 
-
-
 #endif
