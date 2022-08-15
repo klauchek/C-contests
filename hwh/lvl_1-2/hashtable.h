@@ -7,12 +7,15 @@
 #include <string.h>
 #include <ctype.h>
 
+#define START_SIZE 128
+#define HASH_THRESHOLD 0.75
+
 typedef unsigned (*hash_func)(const char *);
 
 struct node_t;
 struct hashtable_t;
 
-struct hashtable_t *hashtable_ctor(unsigned sz, hash_func hashFunc);
+struct hashtable_t *hashtable_ctor(unsigned sz, double threshold_coef, hash_func hashFunc);
 char* make_buffer(unsigned buf_len);
 char* make_word(const char *str);
 void hashtable_fill(struct hashtable_t *h, unsigned buf_len);

@@ -5,11 +5,11 @@
 ```
   $ git clone git@github.com:klauchek/C-contests.git
 ```
-2. cd to the project directory `hwh` and build project using command
+2. cd to the `hwh/lvl_1-2` and build project using command
 ```
   $ make
 ```
 3. run program
 ```
-  $ ./HWH
+  $ ./hwh_lvl_1-2
 ```

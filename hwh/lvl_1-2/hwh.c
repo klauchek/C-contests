@@ -10,12 +10,13 @@ struct hashtable_t {
     struct node_t *head;
     unsigned size;
     unsigned inserts;
+    double threshold;
     hash_func hash;
 };
 
 
 //---------------------------------------------------------
-struct hashtable_t *hashtable_ctor(unsigned sz, hash_func hashFunc) {
+struct hashtable_t *hashtable_ctor(unsigned sz, double threshold_coef, hash_func hashFunc) {
     struct hashtable_t *h = (struct hashtable_t *)calloc(1, sizeof(struct hashtable_t));
     assert(h);
     h->head = (struct node_t *)calloc(1, sizeof(struct node_t));
@@ -24,26 +25,31 @@ struct hashtable_t *hashtable_ctor(unsigned sz, hash_func hashFunc) {
     assert(h->arr);
     h->size = sz;
     h->hash = hashFunc;
+    h->threshold = threshold_coef;
 
     return h;
 }
 
 char* make_buffer(unsigned buf_len) {
-    int res = 0;
+
     char *buffer = (char *)calloc(buf_len + 1, sizeof(char));
     assert(buffer);
-    scanf("\n");
+
+    char sym = getchar();
+
     for(int i = 0; i < buf_len; ++i) {
-        res = scanf("%c", buffer + i);
-        assert(res == 1);
-        if(buffer[i] == ' ')
+
+        sym = getchar();
+        if (sym == ' ' || sym == '\n')
             buffer[i] = '\0';
-    }  
-    buffer[buf_len] = '\0';
+        else    
+            buffer[i] = sym;
+    }
     return buffer;
 }
 
-char* make_word(const char *str) {
+
+char *make_word(const char *str) {
     int len = 0;
     char *word = NULL;
     assert(str);
@@ -51,9 +57,7 @@ char* make_word(const char *str) {
     len = strlen(str);
     word = (char *)calloc(len + 1, sizeof(char));
     assert(word);
-    for(int i = 0; i < len; ++i)
-        word[i] = str[i];
-    word[len] = '\0';
+    memmove(word, str, len);
 
     return word;
 }
@@ -71,13 +75,11 @@ struct node_t *add_node(const char *value) {
     return new_node;
 }
 
-
-
 void hashtable_insert(struct hashtable_t *h, const char *value) {
     assert(h);
     assert(value);
 
-    if (((double)h->inserts / h->size) >= 0.75)
+    if (((double)h->inserts / h->size) >= h->threshold)
        hashtable_resize(h);
 
     unsigned key = h->hash(value) % h->size;
@@ -140,11 +142,13 @@ void hashtable_fill(struct hashtable_t *h, unsigned buf_len) {
     char *buf = NULL;
 
     buf = make_buffer(buf_len);
+    //exit(0);
     
     for(int i = 0; i < buf_len; ++i)
     {
         if(isalpha(buf[i])) {
             word = make_word(buf + i);
+            //printf("%s\n", word);
             i += strlen(word);
             hashtable_insert(h, word);
             free(word);

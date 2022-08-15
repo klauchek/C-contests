@@ -23,7 +23,7 @@ int main() {
         abort();
     }
 
-    hashtable = hashtable_ctor(1, hash_function);
+    hashtable = hashtable_ctor(START_SIZE, HASH_THRESHOLD, hash_function);
     hashtable_fill(hashtable, buf_len);
 
     res = scanf("%d", &w_buf_len);

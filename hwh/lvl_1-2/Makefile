@@ -4,7 +4,7 @@ CFLAGS=-c
 all: hwh clean
 
 hwh: main.o hwh.o
-	$(CC) main.o hwh.o -o HWH
+	$(CC) main.o hwh.o -o hwh_lvl_1-2
 
 hwh.o: hwh.c
 	$(CC) $(CFLAGS) hwh.c
