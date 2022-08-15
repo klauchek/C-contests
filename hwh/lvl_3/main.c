@@ -39,7 +39,7 @@ int main() {
 
     buf = make_buffer(buf, strs_amount);
 
-    hashtable = hashtable_ctor(128, hash_function);
+    hashtable = hashtable_ctor(START_SIZE, HASH_THRESHOLD, hash_function);
     hashtable_fill(hashtable, buf);
 
 

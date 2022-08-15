@@ -20,10 +20,11 @@ struct hashtable_t {
     struct node_t *head;
     unsigned size;
     unsigned inserts;
+    double threshold;
     hash_func hash;
 };
 
-struct hashtable_t *hashtable_ctor(unsigned sz, hash_func hashFunc) {
+struct hashtable_t *hashtable_ctor(unsigned sz, double threshold_coef, hash_func hashFunc) {
     struct hashtable_t *h = (struct hashtable_t *)calloc(1, sizeof(struct hashtable_t));
     assert(h);
     h->head = (struct node_t *)calloc(1, sizeof(struct node_t));
@@ -32,6 +33,7 @@ struct hashtable_t *hashtable_ctor(unsigned sz, hash_func hashFunc) {
     assert(h->arr);
     h->size = sz;
     h->hash = hashFunc;
+    h->threshold = threshold_coef;
 
     return h;
 }
@@ -71,8 +73,9 @@ struct node_t *add_node(struct data_t *new_data) {
 void hashtable_insert(struct hashtable_t *h, struct data_t *new_data, char *text_buffer) {
     assert(h);
     assert(new_data);
+    assert(text_buffer);
 
-    if (((double)h->inserts / h->size) >= LOAD_FACTOR)
+    if (((double)h->inserts / h->size) >= h->threshold)
        hashtable_resize(h, text_buffer);
 
     char *new_str = get_concat_str(h, new_data->idx_1, new_data->idx_2, text_buffer);
@@ -168,7 +171,6 @@ void hashtable_fill(struct hashtable_t *h, struct buffer_t *buffer) {
     }
 }
 
-//сравнение на равенство двух строк, полученных конкатенацией
 int compare (int idx_1, int idx_2, int idx_3, int idx_4, const char *buf) {
 
     if ( (strlen (buf + idx_1) + strlen (buf + idx_2)) != (strlen (buf + idx_3) + strlen (buf + idx_4))) {
@@ -201,7 +203,6 @@ int compare (int idx_1, int idx_2, int idx_3, int idx_4, const char *buf) {
     return 1;
 }
 
-//поиск равных в одном бакете
 unsigned get_answer(struct hashtable_t *h, struct node_t *cur, char *text_buffer) {
 
     assert(h);
@@ -209,7 +210,6 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur, char *text_buffer
     assert(text_buffer);
 
     unsigned quads_in_bkt = 0;
-    //ищем последний элемент в данном бакете
     char *cur_str = get_concat_str(h, cur->data.idx_1, cur->data.idx_2, text_buffer);
     unsigned key = h->hash(cur_str) % h->size;
 
@@ -224,7 +224,6 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur, char *text_buffer
     
     free(cur_str);
 
-    //проход по бакету с поиском равных
     while(cur != last->next) {
         
         struct node_t * comp_node = cur->next;
@@ -260,7 +259,6 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur, char *text_buffer
 }
 
 
-//итерируемся по всей таблице и по каждому бакету
 unsigned quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
     assert(h);
     assert(buffer);
@@ -268,7 +266,6 @@ unsigned quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
     unsigned num_of_quads = 0;
     char *text_buffer = get_text_buffer(buffer);
 
-    //идем по таблице и заходим в каждый бакет
     for(int i = 0; i < h->size; ++i) {
         if(!h->arr[i])
             continue;
