@@ -4,14 +4,14 @@ OPTIMISATION = -O3
 
 all: hwh clean
 
-hwh: main.o hwh_quads.o buffer.o
-	$(CC) main.o hwh_quads.o buffer.o -o hwh_lvl_3
+hwh: main.o hashtable.o strs_pair.o
+	$(CC) main.o hashtable.o strs_pair.o -o hwh_lvl_3
 
-buffer.o: text_buffer/buffer.c
-	$(CC) $(CFLAGS) $(OPTIMISATION) text_buffer/buffer.c
+strs_pair.o: strs_pair/strs_pair.c
+	$(CC) $(CFLAGS) $(OPTIMISATION) strs_pair/strs_pair.c
 
-hwh_quads.o: hwh_quads.c
-	$(CC) $(CFLAGS) $(OPTIMISATION) hwh_quads.c
+hashtable.o: ../hashtable/hashtable.c
+	$(CC) $(CFLAGS) $(OPTIMISATION) ../hashtable/hashtable.c
 	
 main.o: main.c
 	$(CC) $(CFLAGS) $(OPTIMISATION) main.c
