@@ -25,11 +25,12 @@ struct hashtable_t *hashtable_ctor(unsigned sz, double threshold_coef, hash_func
 struct node_t *add_node(void *new_data);
 void hashtable_insert(struct hashtable_t *h, void *new_data);
 void hashtable_resize(struct hashtable_t *h);
+int hashtable_count(struct hashtable_t *h, void *data, int (*data_comp)(void *, void *));
 void list_dtor(struct hashtable_t *h);
 void hashtable_dtor(struct hashtable_t *h);
 
 unsigned hashatble_get_size(struct hashtable_t *h);
-unsigned hashtable_get_key(struct hashtable_t *h, struct node_t *node);
+unsigned hashtable_get_key(struct hashtable_t *h, void *data);
 struct node_t **hashtable_get_arr(struct hashtable_t *h);
 
 #endif //__HASH_TABLE_H__

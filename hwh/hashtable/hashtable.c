@@ -43,14 +43,14 @@ void hashtable_insert(struct hashtable_t *h, void *new_data) {
     if (((double)h->inserts / h->size) >= h->threshold)
        hashtable_resize(h);
 
-    unsigned key = h->hash(new_data) % h->size;
+    unsigned key = hashtable_get_key(h, new_data);
     struct node_t *new_node = add_node(new_data);
 
     if(!h->arr[key]) {
         new_node->next = h->head->next;
         h->head->next = new_node;
         if(new_node->next) {
-            unsigned next_key = h->hash(new_node->next->data) % h->size;
+            unsigned next_key = hashtable_get_key(h, new_node->next->data);;
             h->arr[next_key] = new_node;
         }
         h->arr[key] = h->head;
@@ -80,7 +80,7 @@ void hashtable_resize(struct hashtable_t *h) {
 
     while(cur) {
         next = cur->next;
-        new_key = h->hash(cur->data) % h->size;
+        new_key = hashtable_get_key(h, cur->data);
 
         if(!h->arr[new_key]) {
             last->next = cur;
@@ -97,21 +97,26 @@ void hashtable_resize(struct hashtable_t *h) {
     }
 }
 
-unsigned hashatble_get_size(struct hashtable_t *h) {
+int hashtable_count(struct hashtable_t *h, void *data, int (*data_comp)(void *, void *)) {
     assert(h);
-    return h->size;
-}
+    
+    unsigned freq = 0;
+    unsigned key = hashtable_get_key(h, data);
 
-unsigned hashtable_get_key(struct hashtable_t *h, struct node_t *node) {
-    assert(h);
-    return h->hash(node->data) % h->size;
-}
+    if(!h->arr[key])
+        return 0;
+    else {
+        struct node_t *cur = h->arr[key]->next;
 
-struct node_t **hashtable_get_arr(struct hashtable_t *h) {
-    assert(h);
-    return(h->arr);
+        while(cur && hashtable_get_key(h, data) == key) {
+            if(data_comp(cur->data, data)) {
+                ++freq;
+            }
+            cur = cur->next;
+        }
+    }
+    return freq;
 }
-
 
 void list_dtor(struct hashtable_t *h) {
     struct node_t *cur = h->head;
@@ -132,4 +137,19 @@ void hashtable_dtor(struct hashtable_t *h) {
     list_dtor(h);
     free(h->arr);
     free(h);
+}
+
+unsigned hashatble_get_size(struct hashtable_t *h) {
+    assert(h);
+    return h->size;
+}
+
+unsigned hashtable_get_key(struct hashtable_t *h, void *data) {
+    assert(h);
+    return h->hash(data) % h->size;
+}
+
+struct node_t **hashtable_get_arr(struct hashtable_t *h) {
+    assert(h);
+    return(h->arr);
 }
