@@ -3,11 +3,11 @@ CFLAGS=-c
 
 all: hwh clean
 
-hwh: main.o hwh.o
-	$(CC) main.o hwh.o -o hwh_lvl_1-2
+hwh: main.o hashtable.o
+	$(CC) main.o hashtable.o -o hwh_lvl_1-2
 
-hwh.o: hwh.c
-	$(CC) $(CFLAGS) hwh.c
+hashtable.o: ../hashtable/hashtable.c
+	$(CC) $(CFLAGS) ../hashtable/hashtable.c
 	
 main.o: main.c
 	$(CC) $(CFLAGS) main.c

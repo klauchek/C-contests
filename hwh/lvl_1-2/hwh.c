@@ -14,7 +14,6 @@ struct hashtable_t {
     hash_func hash;
 };
 
-
 //---------------------------------------------------------
 struct hashtable_t *hashtable_ctor(unsigned sz, double threshold_coef, hash_func hashFunc) {
     struct hashtable_t *h = (struct hashtable_t *)calloc(1, sizeof(struct hashtable_t));
@@ -89,7 +88,7 @@ void hashtable_insert(struct hashtable_t *h, const char *value) {
         new_node->next = h->head->next;
         h->head->next = new_node;
         if(new_node->next) {
-            int next_key = h->hash(new_node->next->data) % h->size;
+            unsigned next_key = h->hash(new_node->next->data) % h->size;
             h->arr[next_key] = new_node;
         }
         h->arr[key] = h->head;
@@ -142,13 +141,11 @@ void hashtable_fill(struct hashtable_t *h, unsigned buf_len) {
     char *buf = NULL;
 
     buf = make_buffer(buf_len);
-    //exit(0);
     
     for(int i = 0; i < buf_len; ++i)
     {
         if(isalpha(buf[i])) {
             word = make_word(buf + i);
-            //printf("%s\n", word);
             i += strlen(word);
             hashtable_insert(h, word);
             free(word);
@@ -178,34 +175,10 @@ int hashtable_find(struct hashtable_t *h, unsigned key, const char *str) {
 }
 
 
-void freq_count(struct hashtable_t *h, unsigned w_buf_len) {
-    char c = 0;
-    unsigned key = 0;
-    unsigned freq = 0;
-    char *word = NULL;
-    char *words_buf = NULL;
-    assert(h);
-
-    words_buf = make_buffer(w_buf_len);
-    for(int i = 0; i < w_buf_len; ++i)
-    {
-        if(isalpha(words_buf[i])) {
-            word = make_word(words_buf + i);
-            i += strlen(word);
-            key = h->hash(word) % h->size;
-            freq = hashtable_find(h, key, word);
-            printf("%d ", freq); 
-            free(word);
-        }
-    }
-    free(words_buf);
-}
-
-
 void list_dtor(struct node_t *node) {
     struct node_t *cur = node;
     struct node_t *prev = NULL;
-    while(cur->next) {
+    while(cur) {
         prev = cur;
         cur = cur->next;
 
@@ -223,3 +196,7 @@ void hashtable_dtor(struct hashtable_t *h) {
     free(h);
 }
 
+
+// int                  hash_table_insert(struct hash_table_t **table, void *pair);
+// void                *hash_table_lookup(struct hash_table_t *table, void *key);
+// struct hash_table_t *hash_table_resize(struct hash_table_t **table, size_t size);

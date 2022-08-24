@@ -3,12 +3,21 @@
 #include <limits.h>
 
 
-//------------- READING INPUT ---------------//
+//------------------------- READING INPUT ----------------------------//
 struct buffer_t {
     char *strs_arr;
     unsigned size;
     unsigned capacity; 
 };
+
+void buffer_resize(struct buffer_t *buffer) {
+    assert(buffer);
+
+    buffer->capacity *= 2;
+    buffer->strs_arr = realloc(buffer->strs_arr, buffer->capacity * sizeof(char));
+    for(int i = buffer->size; i < buffer->capacity; ++i)
+        buffer->strs_arr[i] = 0;
+}
 
 struct buffer_t *make_buffer(struct buffer_t *buffer, unsigned num_of_strs) {
 
@@ -38,28 +47,6 @@ struct buffer_t *make_buffer(struct buffer_t *buffer, unsigned num_of_strs) {
     return buffer;
 }
 
-char *make_word(const char *str) {
-    int len = 0;
-    char *word = NULL;
-    assert(str);
-
-    len = strlen(str);
-    word = (char *)calloc(len + 1, sizeof(char));
-    assert(word);
-    memmove(word, str, len);
-
-    return word;
-}
-
-void buffer_resize(struct buffer_t *buffer) {
-    assert(buffer);
-
-    buffer->capacity *= 2;
-    buffer->strs_arr = realloc(buffer->strs_arr, buffer->capacity * sizeof(char));
-    for(int i = buffer->size; i < buffer->capacity; ++i)
-        buffer->strs_arr[i] = 0;
-}
-
 void buffer_dtor(struct buffer_t *buffer) {
     assert(buffer);
 
@@ -67,7 +54,7 @@ void buffer_dtor(struct buffer_t *buffer) {
     free(buffer);
 }
 
-//..............................................................................
+//------------------------- COUNTING QUADS ----------------------------//
 
 
 void hashtable_fill(struct hashtable_t *h, struct buffer_t *buffer) {
@@ -101,11 +88,11 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur) {
     assert(cur);
 
     unsigned quads_in_bkt = 0;
-    unsigned key = hashtable_get_key(h, cur);
+    unsigned key = hashtable_get_key(h, cur->data);
 
     struct node_t *last = cur;
     unsigned counter = 1;
-    while(last->next && hashtable_get_key(h, last) == key) {
+    while(last->next && hashtable_get_key(h, last->data) == key) {
         last = last->next;
         ++counter;
     }
@@ -121,20 +108,7 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur) {
                 ++quads_in_bkt;
 
                 #ifdef PRINT_QUADS
-                struct answer_t quad;
-                quad.first_pair = cur->data;
-                quad.second_pair = comp_node->data;
-                char *str1 = make_word(text_buffer + quad.first_pair.idx_1);
-                char *str2 = make_word(text_buffer + quad.first_pair.idx_2);
-                char *str3 = make_word(text_buffer + quad.second_pair.idx_1);
-                char *str4 = make_word(text_buffer + quad.second_pair.idx_2);
-
-                printf("%s %s %s %s \n", str1, str2, str3, str4);
-
-                free(str1);
-                free(str2);
-                free(str3);
-                free(str4);
+                print_quad(cur->data, comp_node->data);
                 #endif
             }
             comp_node = comp_node->next;
@@ -145,12 +119,10 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur) {
 }
 
 
-unsigned quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
+unsigned quads_count(struct hashtable_t *h) {
     assert(h);
-    assert(buffer);
 
     unsigned num_of_quads = 0;
-    char *text_buffer = buffer->strs_arr;
     struct node_t **nodes_arr = hashtable_get_arr(h);
     unsigned hashtable_size = hashatble_get_size(h); 
 
@@ -158,21 +130,13 @@ unsigned quads_count(struct hashtable_t *h, struct buffer_t *buffer) {
         if(!nodes_arr[i])
             continue;
         struct node_t *cur = nodes_arr[i]->next;
-        
         num_of_quads += get_answer(h, cur);
     }
 
     return num_of_quads;
 }
 
-// Вход:
-// Размер массива строк
-// Строки, разделенные через перенос строки
-
-// Выход:
-// Количество найденных четверок
-
-
+//------------------------- MAIN ----------------------------//
 int main() {
     int res = 0;
     unsigned strs_amount = 0;
@@ -194,7 +158,7 @@ int main() {
     hashtable_fill(hashtable, buf);
 
 
-    quads_num = quads_count(hashtable, buf);
+    quads_num = quads_count(hashtable);
     printf("Num of quads: %u\n", quads_num);
     hashtable_dtor(hashtable);
     buffer_dtor(buf);

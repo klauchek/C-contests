@@ -5,10 +5,6 @@ struct pair_t {
     char *str_2;
 };
 
-struct answer_t {
-    struct pair_t first_pair;
-    struct pair_t second_pair;
-};
 
 struct pair_t *pair_ctor(char *str1, char *str2) {
 
@@ -78,7 +74,15 @@ char *get_concat_str(char *first, char *second) {
     return res;
 }
 
-//--- hash function adaptation ------------
+void print_quad(void *first, void *second) {
+
+    struct pair_t *pair_1 = (struct pair_t *)first;
+    struct pair_t *pair_2 = (struct pair_t *)second;
+
+    printf("%s %s %s %s\n", pair_1->str_1, pair_1->str_2, pair_2->str_1, pair_2->str_2);
+}
+
+//---------- hash function adaptation ------------
 
 unsigned hash_2sts_function(char *str_1, char *str_2) {
 
@@ -100,21 +104,3 @@ unsigned hash_pair_function(void *strs_pair) {
 
     return hash_2sts_function(pair->str_1, pair->str_2);
 }
-
-
-// int main() {
-
-//     char *str_1 = "abr";
-//     char *str_2 = "abrcd";
-//     char *str_3 = "cdef";
-//     char *str_4 = "ef";
-
-//     struct pair_t *pair_1 = pair_ctor(str_1, str_3); //abr cdef
-//     struct pair_t *pair_2 = pair_ctor(str_2, str_4); //abrcd el
-
-
-//     int res = compare(pair_1, pair_2);
-//     printf("%d\n", res);
-
-//     return 0;
-// }
