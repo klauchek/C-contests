@@ -1,4 +1,8 @@
-#include "../hashtable/hashtable.h"
+#include "hashtable.h"
+#include <stdio.h>
+
+#define START_HT_SIZE 128
+#define HASH_THRESHOLD 0.75
 
 unsigned hash_function(void *data) {
     unsigned hash = 5381;

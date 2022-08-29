@@ -1,7 +1,11 @@
-#include "../hashtable/hashtable.h"
-#include "strs_pair/strs_pair.h"
+#include "hashtable.h"
+#include "strs_pair.h"
 #include <limits.h>
+#include <stdio.h>
 
+#define START_HT_SIZE 128
+#define START_BUF_CAPACITY 128
+#define HASH_THRESHOLD 0.75
 
 //------------------------- READING INPUT ----------------------------//
 struct buffer_t {
@@ -118,18 +122,19 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur) {
     return quads_in_bkt;
 }
 
+//написать find вместо get arr - есть ли с таким ключом
+//и пусть если да, то возвращает как раз таки нужный нам h->arr[i]->next;
 
 unsigned quads_count(struct hashtable_t *h) {
     assert(h);
 
     unsigned num_of_quads = 0;
-    struct node_t **nodes_arr = hashtable_get_arr(h);
     unsigned hashtable_size = hashatble_get_size(h); 
 
     for(int i = 0; i < hashtable_size; ++i) {
-        if(!nodes_arr[i])
+        struct node_t *cur = hashtable_find(h, i);
+        if(!cur)
             continue;
-        struct node_t *cur = nodes_arr[i]->next;
         num_of_quads += get_answer(h, cur);
     }
 

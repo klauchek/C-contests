@@ -24,16 +24,22 @@ number of quads
 ```
   $ git clone git@github.com:klauchek/C-contests.git
 ```
-2. cd to the `hwh/lvl_3` and build project using command
+2. cd to the `hwh/lvl_3` and build project using
 ```
+  $ cmake -S ./ -B build/
+  $ cd build
   $ make
 ```
 #### **NOTE**: *if you want to print all found quads, build using* 
 ```
-  $ make CFLAGS+=-DPRINT_QUADS -f Makefile
+  $ cmake -S ./ -B build/ -DPRINT_QUADS=on
 ```
 
 3. run program
 ```
   $ ./hwh_lvl_3
+```
+*with tests:*
+```
+  $ ./hwh_lvl_3 < ../tests/test_1.txt
 ```
