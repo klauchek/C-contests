@@ -26,10 +26,7 @@ int compare(void *data_1, void *data_2) {
     return 0;
 }
 
-void str_dtor(void *data) {
-    char *str = (char *)data;
-    free(str);
-}
+void str_dtor(void *data) {/* do nothing */}
 
 //------------------------- READING INPUT ----------------------------//
 
@@ -51,21 +48,6 @@ char* make_buffer(unsigned buf_len) {
     return buffer;
 }
 
-char *make_word(const char *str) {
-    
-    int len = 0;
-    char *word = NULL;
-    assert(str);
-
-    len = strlen(str);
-    word = (char *)calloc(len + 1, sizeof(char));
-    assert(word);
-    memmove(word, str, len);
-
-    return word;
-}
-
-
 //------------------------- COUNTING FREQUENCY OF WORDS ----------------------------//
 
 void hashtable_fill(struct hashtable_t *h, char *buf, unsigned buf_len) {
@@ -75,9 +57,8 @@ void hashtable_fill(struct hashtable_t *h, char *buf, unsigned buf_len) {
     for(int i = 0; i < buf_len; ++i)
     {
         if(isalpha(buf[i])) {
-            char *word = make_word(buf + i);
-            i += strlen(word);
-            hashtable_insert(h, word);
+            hashtable_insert(h, buf + i);
+            i += strlen(buf + i);
         }
     }
 }
