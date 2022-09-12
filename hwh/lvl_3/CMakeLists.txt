@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(dictionary)
+project(quads)
 
 option(PRINT_QUADS "PRINT_QUADS" OFF)
 
@@ -15,7 +15,7 @@ set(SRCS
     src/main.c
     src/strs_pair.c
 )
-set (HEADER include/strs_pair.c.h)
+set (HEADER include/strs_pair.h)
 set (EXEC_FILE "hwh_lvl_3")
 
 add_executable(${EXEC_FILE} ${SRCS})
