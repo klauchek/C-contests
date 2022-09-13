@@ -122,9 +122,6 @@ unsigned get_answer(struct hashtable_t *h, struct node_t *cur) {
     return quads_in_bkt;
 }
 
-//написать find вместо get arr - есть ли с таким ключом
-//и пусть если да, то возвращает как раз таки нужный нам h->arr[i]->next;
-
 unsigned quads_count(struct hashtable_t *h) {
     assert(h);
 
